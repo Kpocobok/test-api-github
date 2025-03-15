@@ -4,3 +4,5 @@ export enum EMethod {
   PUT = 'PUT',
   DELETE = 'DELETE',
 }
+
+export const API_URL: string = `https://api.github.com/users`;

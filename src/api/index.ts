@@ -1,3 +1,4 @@
+import {IResponse} from '../interfaces';
 import {store} from '../store';
 import {EMethod} from './constants';
 
@@ -6,28 +7,27 @@ export interface IReq {
   method?: EMethod;
   data?: BodyInit;
   headers?: HeadersInit;
+  token?: string;
 }
 
-export const req = async (props: IReq) => {
+export const req = async (props: IReq): Promise<IResponse> => {
   const state = store.getState();
-  const token = state.app.token;
+  const token = props.token || state.app.token;
 
-  try {
-    const response: Response = await fetch(props.host, {
-      method: props.method || EMethod.GET,
-      mode: 'cors',
-      redirect: 'follow',
-      body: props.data,
-      headers: {
-        ...(props.headers || {}),
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        Authorization: token,
-      },
+  return fetch(props.host, {
+    method: props.method || EMethod.GET,
+    body: props.data,
+    headers: {
+      ...(props.headers || {}),
+      Authorization: `token ${token}`,
+      Accept: 'application/vnd.github.v3+json',
+    },
+  })
+    .then((response: Response) => response.json())
+    .then(data => {
+      return {data, status: true, error: null};
+    })
+    .catch((error: Error) => {
+      return {data: null, status: false, error};
     });
-
-    console.log(response);
-  } catch (e) {
-    console.error(`Error request: ${e}`);
-  }
 };

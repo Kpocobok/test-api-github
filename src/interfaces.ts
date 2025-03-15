@@ -1,6 +1,11 @@
 import {WebStorage} from 'redux-persist';
 import {store} from './store';
 
+export interface IForm {
+  owner: string;
+  token: string;
+}
+
 export interface IRepository {
   uuid: string;
   name: string;
@@ -20,6 +25,12 @@ export interface IInitStateApp {
   owner: string;
   modal: React.JSX.Element | null;
   repositories: IRepository[];
+}
+
+export interface IResponse {
+  data: unknown;
+  status: boolean;
+  error: Error | null;
 }
 
 export type IRootState = ReturnType<typeof store.getState>;
