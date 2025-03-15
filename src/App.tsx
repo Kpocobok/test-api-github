@@ -19,7 +19,7 @@ interface IForm {
 function App() {
   const dispatch = useDispatch();
   const list = useSelector<IRootState, IRepository[]>(
-    state => state.app.repository,
+    state => state.app.repositories,
   );
   const [search, setSearch] = useState<string>('');
   const [form, setForm] = useState<IForm>({owner: '', token: ''});
@@ -41,36 +41,36 @@ function App() {
 
   const handleRemoveRepository = (data: IRepository) =>
     dispatch(
-      openModal(() => (
+      openModal(
         <ModalConfirm
           data={data}
           onAccept={async (data: IRepository) =>
             await handleAcceptRemoveRepository(data)
           }
-        />
-      )),
+        />,
+      ),
     );
 
   const handleEditRepository = (data: IRepository) =>
     dispatch(
-      openModal(() => (
+      openModal(
         <ModalAddEdit
           isEdit
           data={data}
           onAccept={async (data: IRepository) =>
             await handleSaveRepository(data)
           }
-        />
-      )),
+        />,
+      ),
     );
 
   const handleAddRepository = () =>
     dispatch(
-      openModal(() => (
+      openModal(
         <ModalAddEdit
           onAccept={(data: IRepository) => handleSaveRepository(data)}
-        />
-      )),
+        />,
+      ),
     );
 
   const handleSubmit = () => {

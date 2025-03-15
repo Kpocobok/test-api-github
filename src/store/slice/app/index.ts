@@ -5,7 +5,7 @@ const initialState: IInitStateApp = {
   loading: false,
   token: '',
   owner: '',
-  modal: () => null,
+  modal: null,
   repositories: [],
 };
 
@@ -16,11 +16,11 @@ export const appSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    openModal: (state, action: PayloadAction<() => React.JSX.Element>) => {
+    openModal: (state, action: PayloadAction<React.JSX.Element>) => {
       state.modal = action.payload;
     },
     closeModal: state => {
-      state.modal = () => null;
+      state.modal = null;
     },
     setOwner: (state, action: PayloadAction<string>) => {
       state.owner = action.payload;

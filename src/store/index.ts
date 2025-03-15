@@ -1,15 +1,7 @@
 import {combineReducers, configureStore, Reducer} from '@reduxjs/toolkit';
 import storage from 'redux-persist/lib/storage';
 import {Persistor, persistReducer} from 'redux-persist';
-import {
-  persistStore,
-  FLUSH,
-  REHYDRATE,
-  PAUSE,
-  PERSIST,
-  PURGE,
-  REGISTER,
-} from 'redux-persist';
+import {persistStore} from 'redux-persist';
 import {IPersit} from '../interfaces';
 import app from './slice/app';
 
@@ -29,10 +21,7 @@ export const store = configureStore({
   reducer: persistedReducer,
   middleware: getter =>
     getter({
-      serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-        ignoredActionPaths: ['payload'], // разрешение передавать функции в redux только в data объекте
-      },
+      serializableCheck: false,
     }),
 });
 

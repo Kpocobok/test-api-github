@@ -18,7 +18,7 @@ export interface IInitStateApp {
   loading: boolean;
   token: string;
   owner: string;
-  modal: () => React.JSX.Element | null;
+  modal: React.JSX.Element | null;
   repositories: IRepository[];
 }
 
