@@ -1,5 +1,6 @@
 import Item from './item';
 import {IRepository} from '../../interfaces';
+import './styles.scss';
 
 export interface IList {
   list?: IRepository[];
@@ -12,11 +13,11 @@ export interface IList {
 const List = (props: IList) => {
   return props.list?.length ? (
     <div className="list">
-      {props.loading ? <div className="list__loading"></div> : null}
+      {props.loading ? <div className="list__loading">Загрузка...</div> : null}
       {props.list.map((item: IRepository) => {
         return (
           <Item
-            key={item.uuid}
+            key={item.id}
             data={item}
             onShow={props.onShow}
             onEdit={props.onEdit}

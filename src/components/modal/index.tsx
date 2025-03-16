@@ -4,6 +4,7 @@ import Form from '../form';
 import Button from '../form/button';
 import {EButtonType, EFormAlign, EFormType} from '../form/constants';
 import {closeModal} from '../../store/slice/app';
+import './styles.scss';
 
 export interface IModal {
   children?: ReactNode;
@@ -26,7 +27,7 @@ export const ModalHeader = (props: IModal) => {
 };
 
 export const ModalBody = (props: IModal) => {
-  return <div className="modal__container-footer">{props.children}</div>;
+  return <div className="modal__container-body">{props.children}</div>;
 };
 
 export const ModalFooter = (props: IModalFooter) => {
@@ -41,7 +42,7 @@ export const ModalFooter = (props: IModalFooter) => {
 
   return (
     <div className="modal__container-footer">
-      <Form type={EFormType.row} align={EFormAlign.right}>
+      <Form type={EFormType.collumn} align={EFormAlign.center}>
         <Button type={EButtonType.alert} onClick={handleCloseModal}>
           close
         </Button>

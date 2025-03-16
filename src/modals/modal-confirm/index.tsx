@@ -7,8 +7,8 @@ import {
 import {IRepository} from '../../interfaces';
 
 export interface IModalConfirm {
-  data: IRepository;
-  onAccept: (data: IRepository) => Promise<void>;
+  data?: IRepository;
+  onAccept: (data?: IRepository) => Promise<void> | void;
 }
 
 const ModalConfirm = (props: IModalConfirm) => {

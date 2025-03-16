@@ -1,5 +1,5 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {IInitStateApp, IRepository} from '../../../interfaces';
+import {IInitStateApp, IModal, IRepository} from '../../../interfaces';
 
 const initialState: IInitStateApp = {
   loading: false,
@@ -16,7 +16,7 @@ export const appSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
     },
-    openModal: (state, action: PayloadAction<React.JSX.Element>) => {
+    openModal: (state, action: PayloadAction<IModal>) => {
       state.modal = action.payload;
     },
     closeModal: state => {

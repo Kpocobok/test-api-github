@@ -2,7 +2,8 @@ export enum EMethod {
   GET = 'GET',
   POST = 'POST',
   PUT = 'PUT',
+  PATCH = 'PATCH',
   DELETE = 'DELETE',
 }
 
-export const API_URL: string = `https://api.github.com/users`;
+export const CORE = `https://api.github.com`;

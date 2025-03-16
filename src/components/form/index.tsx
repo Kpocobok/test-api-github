@@ -1,6 +1,7 @@
 import {ReactNode} from 'react';
 import {cls} from '../../helpers';
 import {EFormAlign, EFormType} from './constants';
+import './styles.scss';
 
 export interface IForm {
   type?: EFormType;

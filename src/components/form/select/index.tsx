@@ -1,16 +1,20 @@
 import {useEffect, useState} from 'react';
 import {cls} from '../../../helpers';
 
-export interface IInput {
+export interface ISelectOptions {
+  value: string;
+  text: string;
+}
+
+export interface ISelect {
+  options: ISelectOptions[];
   id?: string;
   disabled?: boolean;
   value?: string;
-  type?: string;
-  placeholder?: string;
   onChange?: (value: string) => void;
 }
 
-const Input = (props: IInput) => {
+const Select = (props: ISelect) => {
   const [current, setCurrent] = useState<string>(props.value || '');
 
   useEffect(() => {
@@ -19,19 +23,24 @@ const Input = (props: IInput) => {
 
   return (
     <div className={cls('form__element', props.disabled ? 'disabled' : '')}>
-      <input
+      <select
         id={props.id || ''}
-        type={props.type || 'text'}
         value={current}
-        placeholder={props.placeholder || ''}
         disabled={props.disabled}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
           setCurrent(e.target.value);
           if (props.onChange) props.onChange(e.target.value);
-        }}
-      />
+        }}>
+        {props.options.map((item: ISelectOptions, key: number) => {
+          return (
+            <option key={key} value={item.value}>
+              {item.text}
+            </option>
+          );
+        })}
+      </select>
     </div>
   );
 };
 
-export default Input;
+export default Select;

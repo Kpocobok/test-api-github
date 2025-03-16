@@ -13,9 +13,8 @@ import Button from './components/form/button';
 import Input from './components/form/input';
 import List from './components/list';
 import Form from './components/form';
-import ModalAddEdit from './modals/modal-create-edit';
-import ModalConfirm from './modals/modal-confirm';
-import {getRepos} from './api/request';
+import {createRepos, getRepos, removeRepos, updateRepos} from './api/request';
+import {EModals} from './modals/constants';
 import './App.scss';
 
 function App() {
@@ -31,11 +30,16 @@ function App() {
   const [filteredList, setFilteredList] = useState<IRepository[]>(list);
 
   useEffect(() => {
+    handleRefreshRepos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [owner, token]);
+
+  useEffect(() => {
     if (search) {
       setFilteredList(
         list.filter(
           (item: IRepository) =>
-            item.name.includes(search) || item.description.includes(search),
+            item.name.includes(search) || item.description?.includes(search),
         ),
       );
     } else setFilteredList(list);
@@ -46,69 +50,141 @@ function App() {
 
   const handleRemoveRepository = (data: IRepository) =>
     dispatch(
-      openModal(
-        <ModalConfirm
-          data={data}
-          onAccept={async (data: IRepository) =>
-            await handleAcceptRemoveRepository(data)
-          }
-        />,
-      ),
+      openModal({
+        type: EModals.CONFIRM,
+        data,
+        onAccept: async (data: IRepository) =>
+          await handleAcceptRemoveRepository(data),
+      }),
     );
 
   const handleEditRepository = (data: IRepository) =>
     dispatch(
-      openModal(
-        <ModalAddEdit
-          isEdit
-          data={data}
-          onAccept={async (data: IRepository) =>
-            await handleSaveRepository(data)
-          }
-        />,
-      ),
+      openModal({
+        type: EModals.EDITADD,
+        isEdit: true,
+        data,
+        onAccept: (data: IRepository) => handleUpdateRepository(data),
+      }),
     );
 
   const handleAddRepository = () =>
     dispatch(
-      openModal(
-        <ModalAddEdit
-          onAccept={(data: IRepository) => handleSaveRepository(data)}
-        />,
-      ),
+      openModal({
+        type: EModals.EDITADD,
+        onAccept: (data: IRepository) => handleSaveRepository(data),
+      }),
     );
 
   const handleSubmit = async () => {
     if (form.owner && form.token) {
-      dispatch(setLoading(true));
-      try {
-        const response = await getRepos(form);
-        if (response.status && Array.isArray(response.data)) {
-          dispatch(setRepositories(response.data));
-          dispatch(setOwner(form.owner));
-          dispatch(setToken(form.token));
-        } else {
-          console.error(`Error: ${response.data || response.error}`);
-        }
-      } catch (e) {
-        console.error(`Error: ${e}`);
-      } finally {
-        setForm({owner: '', token: ''});
-        dispatch(setLoading(false));
-      }
+      dispatch(setOwner(form.owner));
+      dispatch(setToken(form.token));
+      setForm({owner: '', token: ''});
     }
   };
 
-  const handleShowRepository = (data: IRepository) => {
-    console.log(data);
+  const handleRefreshRepos = () => {
+    if (owner && token) {
+      requestRepos(owner, token);
+    }
+  };
+
+  const handleClearListRepos = () => {
+    setSearch('');
+    dispatch(setOwner(''));
+    dispatch(setToken(''));
+    dispatch(setRepositories([]));
+  };
+
+  const handleShowRepository = (data: IRepository) =>
+    window.open(data.html_url, '_blank');
+
+  const requestRepos = async (login: string, access: string) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await getRepos({owner: login, token: access});
+      if (response.status && Array.isArray(response.data)) {
+        dispatch(setRepositories(response.data));
+      } else {
+        console.error(`Error: ${response.data || response.error}`);
+      }
+    } catch (e) {
+      console.error(`Error: ${e}`);
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   const handleSaveRepository = async (data: IRepository) => {
-    console.log(data);
+    dispatch(setLoading(true));
+    try {
+      const response = await createRepos(data);
+      if (response.status) {
+        const newRepo = response.data as IRepository;
+        dispatch(setRepositories([...list, newRepo]));
+      } else {
+        console.error(`Error: ${response.data || response.error}`);
+      }
+    } catch (e) {
+      console.error(`Error: ${e}`);
+    } finally {
+      dispatch(setLoading(false));
+    }
+  };
+
+  const handleUpdateRepository = async (data: IRepository) => {
+    dispatch(setLoading(true));
+    try {
+      const response = await updateRepos(
+        {
+          description: data.description,
+          private: data.private,
+        } as IRepository,
+        owner,
+        data.name,
+      );
+
+      if (response.status) {
+        const updatedRepos = response.data as IRepository;
+        dispatch(
+          setRepositories([
+            ...list.map((item: IRepository) => {
+              return item.name === updatedRepos.name ? updatedRepos : item;
+            }),
+          ]),
+        );
+      } else {
+        console.error(`Error: ${response.data || response.error}`);
+      }
+    } catch (e) {
+      console.error(`Error: ${e}`);
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   const handleAcceptRemoveRepository = async (data: IRepository) => {
-    console.log(data);
+    dispatch(setLoading(true));
+    try {
+      const response = await removeRepos(owner, data.name);
+      console.log(111, response);
+      if (response.status && response.code === 204) {
+        dispatch(
+          setRepositories([
+            ...list.filter((item: IRepository) => {
+              return item.name !== data.name;
+            }),
+          ]),
+        );
+      } else {
+        console.error(`Error: ${response.data || response.error}`);
+      }
+    } catch (e) {
+      console.error(`Error: ${e}`);
+    } finally {
+      dispatch(setLoading(false));
+    }
   };
 
   return (
@@ -120,6 +196,7 @@ function App() {
               id="owner"
               disabled={loading}
               value={form.owner}
+              placeholder="Owner"
               onChange={(value: string) =>
                 handleChangeFormField(value, 'owner')
               }
@@ -128,6 +205,7 @@ function App() {
               id="token"
               disabled={loading}
               value={form.token}
+              placeholder="Token"
               onChange={(value: string) =>
                 handleChangeFormField(value, 'token')
               }
@@ -142,7 +220,12 @@ function App() {
         </div>
         <div className="grid__column">
           <Form align={EFormAlign.right} type={EFormType.collumn}>
-            <Input id="search" value={search} onChange={setSearch} />
+            <Input
+              id="search"
+              value={search}
+              onChange={setSearch}
+              placeholder="Search"
+            />
           </Form>
           {list.length ? (
             <List
@@ -158,6 +241,18 @@ function App() {
             </div>
           )}
           <Form type={EFormType.collumn} align={EFormAlign.right}>
+            <Button
+              type={EButtonType.primary}
+              disabled={loading || !owner || !token}
+              onClick={handleClearListRepos}>
+              clear
+            </Button>
+            <Button
+              type={EButtonType.primary}
+              disabled={loading || !owner || !token}
+              onClick={handleRefreshRepos}>
+              refresh
+            </Button>
             <Button
               type={EButtonType.primary}
               disabled={loading || !owner || !token}
